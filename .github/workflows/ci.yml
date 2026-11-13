@@ -49,8 +49,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install --only-binary=:all: maturin numpy scipy pytest
-      - name: Build & install pifeat extension
-        run: maturin develop --release
+      - name: Build & install pifeat wheel
+        run: |
+          maturin build --release --out dist -i python
+          pip install --no-index --find-links=dist pifeat
       - name: Run zero-dependency stdlib suite
         run: python tests/test_stdlib_zero_dep.py
       - name: Run full scientific reference suite (vs SciPy & NumPy)
