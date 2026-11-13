@@ -1,23 +1,73 @@
-# pifeat
+<div align="center">
 
-<img width="auto" height="400" alt="image" src="https://github.com/user-attachments/assets/da4a95cf-b85b-4382-a949-c1733430cd2f" />
+<img width="auto" height="320" alt="pifeat logo" src="https://github.com/user-attachments/assets/da4a95cf-b85b-4382-a949-c1733430cd2f" />
 
+# `pifeat`
 
-Standalone, zero-dependency EEG and biosignal feature extraction engine written in Rust and exposed to Python through PyO3.
+**Zero-Dependency, Sub-Millisecond EEG & Biosignal Feature Extraction Engine in Rust + Python**
 
-Designed for BCI, neurofeedback, machine learning, and biosignal research on resource-constrained edge hardware (Raspberry Pi 4 and Pi 5, ARMv7 and AArch64) as well as desktop/server platforms. Works with any EEG or biosignal acquisition source (OpenBCI, BrainFlow, LSL, MNE, PiEEG, or raw ADC streams).
-
-> **Early development / experimental / no warranties.** APIs, behavior, and packaging may change without notice. Research software provided as-is, without warranty of any kind. Not a medical device and not intended for clinical, diagnostic, or safety-critical use. See `LICENSE` for full terms.
-
-## Developer Quickstart
+[![CI](https://github.com/pieeg-club/pifeat/actions/workflows/ci.yml/badge.svg)](https://github.com/pieeg-club/pifeat/actions/workflows/ci.yml)
+[![Release](https://github.com/pieeg-club/pifeat/actions/workflows/release.yml/badge.svg)](https://github.com/pieeg-club/pifeat/actions/workflows/release.yml)
+[![PyPI](https://img.shields.io/pypi/v/pifeat.svg?color=blue)](https://pypi.org/project/pifeat/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/pifeat.svg)](https://pypi.org/project/pifeat/)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](#why-pifeat)
+[![Powered by Rust](https://img.shields.io/badge/engine-Rust%20%2B%20PyO3-orange.svg)](https://github.com/pieeg-club/pifeat)
+[![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Raspberry%20Pi-informational.svg)](#release-and-wheel-distribution)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3%2B-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 ```bash
 pip install pifeat
 ```
 
-No NumPy, SciPy, MNE, Numba, or external BLAS runtime dependencies. Accepts any Python object supporting the CPython Buffer Protocol (`array.array`, `memoryview`, `bytearray`, or `numpy.ndarray` when present) in both `channels_first` (`[channels, samples]`) and `samples_first` (`[samples, channels]`) layouts.
+[Why `pifeat`?](#-why-pifeat) • [Quickstart](#-developer-quickstart) • [22 Canonical Features](#-the-22-features-per-channel) • [Benchmarks](#-benchmarks-100x170x-faster) • [API Reference](#-api-reference)
 
-### 1. Batch Multichannel Extraction
+</div>
+
+---
+
+> **Early development / experimental / no warranties.** APIs, behavior, and packaging may change without notice. Research software provided as-is, without warranty of any kind. Not a medical device and not intended for clinical, diagnostic, or safety-critical use. See `LICENSE` for full terms.
+
+## ⚡ Why `pifeat`?
+
+Building real-time Brain-Computer Interfaces (BCI), neurofeedback loops, or edge ML pipelines on devices like a **Raspberry Pi** or embedded Linux usually forces a painful trade-off: pull in hundreds of megabytes of `scipy` / `mne` / `numba` / `openblas` dependencies—or write fragile DSP glue code by hand.
+
+**`pifeat` solves this in a single `~1.1 MB` native wheel:**
+
+- **Zero Runtime Dependencies**: No `numpy`, `scipy`, `mne`, `numba`, or C/Fortran BLAS required at runtime. Works out of the box with Python's built-in `array.array`, `memoryview`, `bytearray`, **or** `numpy.ndarray` via the **CPython Buffer Protocol**.
+- **100x–173x Faster than SciPy + NumPy**: Extracts all 22 time, frequency (Welch PSD), and nonlinear features across 16 channels (500 samples @ 250 Hz) in **~146 µs** with the GIL released.
+- **Zero Steady-State Allocations**: Both the Rust core and `extractor.extract_into(...)` perform **0 heap allocations** on the real-time hot path—eliminating GC pauses and latency spikes.
+- **Drop-In Scientific Equivalence**: Matches `scipy.signal.welch` (`window='hann'`, `detrend='constant'`, `scaling='density'`) to **$< 10^{-12}$ relative error**, with compensated two-pass variance to survive large uncalibrated ADC DC offsets ($10^5\text{--}10^6\ \mu\text{V}$).
+- **Hardware-Agnostic**: Works with **OpenBCI, BrainFlow, LSL (Lab Streaming Layer), MNE, PiEEG**, or any raw ADC/SPI stream.
+
+---
+
+## 🚀 Developer Quickstart
+
+### 30-Second Copy-Paste Example (Pure Python — Zero Dependencies)
+
+```python
+import array, math
+import pifeat as pf
+
+# 1. Generate 2 seconds (500 samples @ 250 Hz) of synthetic 8-channel EEG (10 Hz Alpha + 20 Hz Beta)
+n_ch, n_samples, fs = 8, 500, 250.0
+raw = array.array("d", [
+    15.0 * math.sin(2 * math.pi * 10.0 * (s / fs)) + 5.0 * math.cos(2 * math.pi * 20.0 * (s / fs))
+    for _ in range(n_ch) for s in range(n_samples)
+])
+
+# 2. Extract all 22 features per channel in ~70 microseconds
+extractor = pf.FeatureExtractor(num_channels=n_ch, window_samples=n_samples, fs=fs)
+frame = extractor.extract(raw, layout="channels_first")
+
+print("Features per channel:", len(pf.FEATURE_NAMES))        # 22
+print("Ch0 Alpha Power (uV^2):", frame.to_dict()["alpha_power"][0])
+print("Ch0 Alpha/Beta Ratio:  ", frame.to_dict()["alpha_beta_ratio"][0])
+```
+
+### 1. Batch Multichannel Extraction (`numpy.ndarray`, `array.array`, or `memoryview`)
+
+Accepts contiguous `float64` (`'d'`) or `float32` (`'f'`) buffers in either `channels_first` (`[channels, samples]`) or `samples_first` (`[samples, channels]`) layout:
 
 ```python
 import array
@@ -34,7 +84,7 @@ extractor = pf.FeatureExtractor(
     integration="trapezoid" # "trapezoid" (uV^2) or "bin_mean" (uV^2/Hz)
 )
 
-# Contiguous f64 ('d') or f32 ('f') buffer: [16, 500]
+# Pass a 2D numpy.ndarray (shape [16, 500]), memoryview, or stdlib array.array('d'|'f')
 raw_window = array.array("d", [0.0] * (16 * 500))
 
 frame = extractor.extract(raw_window, layout="channels_first")
@@ -43,22 +93,22 @@ if frame.window_valid:
     ch0 = frame.channel(0)           # list[float], length 22
     by_name = frame.to_dict()        # dict[str, list[float]]
 
-# Zero-allocation hot path: writes directly into a preallocated writable f64 buffer
+# Zero-allocation hot path: writes directly into a preallocated writable f64 buffer (array or np.ndarray)
 out_buf = array.array("d", [0.0] * (16 * pf.NUM_FEATURES_PER_CHANNEL))
 valid = extractor.extract_into(raw_window, out_buf, layout="channels_first")
 ```
 
-### 2. Continuous Streaming Extraction
+### 2. Continuous Real-Time Streaming (`StreamingFeatureEngine`)
 
-`StreamingFeatureEngine` maintains per-channel circular buffers, tracks monotonic sequence numbers and timestamps, detects dropped upstream samples, and caches overlapping Welch segment periodograms so each hop only computes the newly completed segment FFT.
+`StreamingFeatureEngine` maintains per-channel circular buffers, tracks monotonic sequence numbers and timestamps, detects dropped upstream packets, and **caches overlapping Welch segment periodograms** so each hop only computes the newly completed segment FFT:
 
 ```python
 import pifeat as pf
 
 stream = pf.StreamingFeatureEngine(
     num_channels=16,
-    window_samples=500,
-    hop_samples=125,        # Emit every 125 samples (500 ms at 250 Hz)
+    window_samples=500,     # 2.0 s sliding window
+    hop_samples=125,        # Emit a FeatureFrame every 125 samples (500 ms at 250 Hz)
     fs=250.0,
     nperseg=250,
     noverlap=125,
@@ -67,37 +117,52 @@ stream = pf.StreamingFeatureEngine(
     integration="trapezoid",
 )
 
-# Push sample-by-sample (e.g. from an acquisition stream)
-for seq, timestamp, channels in batch:
+# Push sample-by-sample from your hardware loop / LSL / BrainFlow / SPI reader
+for seq, timestamp, channels in acquisition_stream:
     frame = stream.push_sample(seq, timestamp, channels)
     if frame is not None:
-        # Inspect validity and sequence continuity before downstream inference
+        # Inspect packet-loss & signal-quality flags before feeding your ML model
         if not frame.window_valid:
-            print(f"Warning: {frame.missing_samples} dropped samples or invalid channel")
+            print(f"Warning: {frame.missing_samples} dropped samples or invalid channel (flags={frame.channel_flags})")
         features = frame.matrix()
 
-# Or push a contiguous block buffer ([samples, channels] or [channels, samples])
+# Or push a contiguous chunk of samples at once ([samples, channels] or [channels, samples])
 frames = stream.push_block(block_buf, start_seq=1, start_timestamp=0.0, layout="samples_first")
 ```
 
-### 3. Standalone 1D Functions
+### 3. Standalone 1D DSP Functions
+
+Need just one metric on a 1D signal (`list[float]`, `array.array`, or 1D `numpy.ndarray`)?
 
 ```python
 import pifeat as pf
 
 rms = pf.compute_rms(signal_1d)
 var = pf.compute_variance(signal_1d)
-ll = pf.compute_line_length(signal_1d)
+ll  = pf.compute_line_length(signal_1d)
 zcr = pf.compute_zero_crossing_rate(signal_1d)
 activity, mobility, complexity = pf.compute_hjorth(signal_1d)
-pe = pf.compute_permutation_entropy(signal_1d, order=3, delay=1, normalize=True)
+pe  = pf.compute_permutation_entropy(signal_1d, order=3, delay=1, normalize=True)
+
+# Exact scipy.signal.welch equivalent (returns frequencies and one-sided PSD in uV^2/Hz)
 freqs, psd = pf.compute_welch_psd(signal_1d, fs=250.0, nperseg=250, noverlap=125)
+
+# Dict of absolute powers, relative powers, ratios, and spectral entropy
 bands = pf.compute_band_powers(signal_1d, fs=250.0, nperseg=250, noverlap=125)
+```
+
+### 4. Using `pifeat` in Pure Rust (`Cargo.toml`)
+
+`pifeat` can also be embedded directly in Rust firmware, Tauri apps, or native daemons without Python:
+
+```toml
+[dependencies]
+pifeat = { version = "0.1", default-features = false }
 ```
 
 ---
 
-## Feature Set and Mathematical Definitions (v0.1)
+## 🧠 The 22 Features Per Channel
 
 Each channel produces `NUM_FEATURES_PER_CHANNEL = 22` features in the canonical order given by `pf.FEATURE_NAMES`:
 
@@ -137,7 +202,7 @@ Each channel produces `NUM_FEATURES_PER_CHANNEL = 22` features in the canonical 
 
 ---
 
-## API Reference
+## 📖 API Reference
 
 ### `FeatureFrame`
 
@@ -159,7 +224,7 @@ Each channel produces `NUM_FEATURES_PER_CHANNEL = 22` features in the canonical 
 
 ---
 
-## Benchmark
+## 📊 Benchmarks (100x–170x Faster)
 
 Measured at $f_s = 250\text{ Hz}$ extracting all 22 features per channel (time-domain, Welch PSD, band powers, ratios, spectral entropy, and permutation entropy). Steady-state heap allocations in Rust are verified via a custom `#[global_allocator]` counter in `tests/bench_native.rs`.
 
