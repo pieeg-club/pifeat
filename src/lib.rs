@@ -1,4 +1,4 @@
-//! `pieeg-features` — Zero-dependency, high-performance EEG feature extraction engine.
+//! `pifeat` — Zero-dependency, high-performance EEG and biosignal feature extraction engine.
 //!
 //! Works standalone as a pure-Rust library (`default-features = false`) and as a
 //! native Python extension (`features = ["python"]`) using CPython's Buffer Protocol.
@@ -620,7 +620,7 @@ fn compute_band_powers(
 
 #[cfg(feature = "python")]
 #[pymodule]
-fn pieeg_features(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn pifeat(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add("__version__", VERSION)?;
     m.add("NUM_FEATURES_PER_CHANNEL", NUM_FEATURES_PER_CHANNEL)?;
     m.add("FLAG_VALID", FLAG_VALID)?;

@@ -1,15 +1,15 @@
-# PiEEG Features
+# pifeat
 
-Standalone, zero-dependency EEG feature extraction engine written in Rust and exposed to Python through PyO3.
+Standalone, zero-dependency EEG and biosignal feature extraction engine written in Rust and exposed to Python through PyO3.
 
-Designed for BCI, neurofeedback, machine learning, and EEG research on resource-constrained edge hardware (Raspberry Pi 4 and Pi 5, ARMv7 and AArch64) as well as desktop/server platforms. Works with PiEEG and any other EEG acquisition source.
+Designed for BCI, neurofeedback, machine learning, and biosignal research on resource-constrained edge hardware (Raspberry Pi 4 and Pi 5, ARMv7 and AArch64) as well as desktop/server platforms. Works with any EEG or biosignal acquisition source (OpenBCI, BrainFlow, LSL, MNE, PiEEG, or raw ADC streams).
 
 > **Early development / experimental / no warranties.** APIs, behavior, and packaging may change without notice. Research software provided as-is, without warranty of any kind. Not a medical device and not intended for clinical, diagnostic, or safety-critical use. See `LICENSE` for full terms.
 
 ## Developer Quickstart
 
 ```bash
-pip install pieeg-features
+pip install pifeat
 ```
 
 No NumPy, SciPy, MNE, Numba, or external BLAS runtime dependencies. Accepts any Python object supporting the CPython Buffer Protocol (`array.array`, `memoryview`, `bytearray`, or `numpy.ndarray` when present) in both `channels_first` (`[channels, samples]`) and `samples_first` (`[samples, channels]`) layouts.
@@ -18,7 +18,7 @@ No NumPy, SciPy, MNE, Numba, or external BLAS runtime dependencies. Accepts any 
 
 ```python
 import array
-import pieeg_features as pf
+import pifeat as pf
 
 extractor = pf.FeatureExtractor(
     num_channels=16,
@@ -50,7 +50,7 @@ valid = extractor.extract_into(raw_window, out_buf, layout="channels_first")
 `StreamingFeatureEngine` maintains per-channel circular buffers, tracks monotonic sequence numbers and timestamps, detects dropped upstream samples, and caches overlapping Welch segment periodograms so each hop only computes the newly completed segment FFT.
 
 ```python
-import pieeg_features as pf
+import pifeat as pf
 
 stream = pf.StreamingFeatureEngine(
     num_channels=16,
@@ -64,7 +64,7 @@ stream = pf.StreamingFeatureEngine(
     integration="trapezoid",
 )
 
-# Push sample-by-sample (e.g. from pieeg_core.NativeAcquisition.read_batch)
+# Push sample-by-sample (e.g. from an acquisition stream)
 for seq, timestamp, channels in batch:
     frame = stream.push_sample(seq, timestamp, channels)
     if frame is not None:
@@ -80,7 +80,7 @@ frames = stream.push_block(block_buf, start_seq=1, start_timestamp=0.0, layout="
 ### 3. Standalone 1D Functions
 
 ```python
-import pieeg_features as pf
+import pifeat as pf
 
 rms = pf.compute_rms(signal_1d)
 var = pf.compute_variance(signal_1d)
@@ -195,7 +195,7 @@ Requires Rust (`rustup`) and `maturin`:
 
 ```bash
 pip install maturin
-cd PiEEG-features
+cd pifeat
 maturin develop --release
 ```
 

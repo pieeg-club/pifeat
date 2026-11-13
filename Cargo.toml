@@ -1,12 +1,12 @@
 [package]
-name = "pieeg-features"
+name = "pifeat"
 version = "0.1.0"
 edition = "2021"
-description = "Zero-dependency, high-performance EEG feature extraction engine in Rust with Python bindings"
+description = "Zero-dependency, high-performance EEG and biosignal feature extraction engine in Rust with Python bindings"
 license = "AGPL-3.0-or-later"
 
 [lib]
-name = "pieeg_features"
+name = "pifeat"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]

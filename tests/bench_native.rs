@@ -1,4 +1,4 @@
-//! Native Rust benchmark & zero-allocation verification suite for `pieeg-features`.
+//! Native Rust benchmark & zero-allocation verification suite for `pifeat`.
 //!
 //! Run with:
 //! ```bash
@@ -10,10 +10,10 @@ use std::f64::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 
-use pieeg_features::engine::{
+use pifeat::engine::{
     DataLayout, FeatureExtractor, FeatureFrame, StreamingFeatureEngine,
 };
-use pieeg_features::spectral::BandIntegration;
+use pifeat::spectral::BandIntegration;
 
 struct CountingAllocator;
 
@@ -67,7 +67,7 @@ fn verify_zero_steady_state_allocations_and_benchmark() {
     ];
 
     println!("\n==========================================================================================");
-    println!("  pieeg-features Native Rust Benchmark (fs = 250 Hz, all 22 features/ch)");
+    println!("  pifeat Native Rust Benchmark (fs = 250 Hz, all 22 features/ch)");
     println!("==========================================================================================");
     println!(
         "{:<8} {:<10} {:<10} {:<12} {:<12} {:<12} {:<12} {:<10}",

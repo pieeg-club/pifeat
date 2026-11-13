@@ -43,7 +43,7 @@ jobs:
         if: matrix.target == 'x86_64'
         run: |
           pip install --only-binary=:all: numpy scipy pytest
-          pip install --no-index --find-links=dist pieeg-features
+          pip install --no-index --find-links=dist pifeat
           python tests/test_stdlib_zero_dep.py
           pytest -v
       - name: Set up QEMU for Raspberry Pi (ARMv7 / AArch64) container test
@@ -57,14 +57,14 @@ jobs:
           docker run --rm --platform linux/arm/v7 \
             -v "${{ github.workspace }}:/work" -w /work \
             arm32v7/python:3.12-slim-bookworm \
-            sh -c "pip install --no-index --find-links=dist pieeg-features && python tests/test_stdlib_zero_dep.py"
+            sh -c "pip install --no-index --find-links=dist pifeat && python tests/test_stdlib_zero_dep.py"
       - name: Test AArch64 wheel in 64-bit Raspberry Pi container (zero-dependency stdlib)
         if: matrix.target == 'aarch64'
         run: |
           docker run --rm --platform linux/arm64 \
             -v "${{ github.workspace }}:/work" -w /work \
             arm64v8/python:3.12-slim-bookworm \
-            sh -c "pip install --no-index --find-links=dist pieeg-features && python tests/test_stdlib_zero_dep.py"
+            sh -c "pip install --no-index --find-links=dist pifeat && python tests/test_stdlib_zero_dep.py"
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-linux-${{ matrix.target }}
@@ -90,7 +90,7 @@ jobs:
         if: matrix.target == 'aarch64'
         run: |
           pip install --only-binary=:all: numpy scipy pytest
-          pip install --no-index --find-links=dist pieeg-features
+          pip install --no-index --find-links=dist pifeat
           python tests/test_stdlib_zero_dep.py
           pytest -v
       - uses: actions/upload-artifact@v4
@@ -118,7 +118,7 @@ jobs:
       - name: Test Windows x64 wheel against SciPy & NumPy
         run: |
           pip install --only-binary=:all: numpy scipy pytest
-          pip install --no-index --find-links=dist pieeg-features
+          pip install --no-index --find-links=dist pifeat
           python tests/test_stdlib_zero_dep.py
           pytest -v
       - uses: actions/upload-artifact@v4
@@ -147,7 +147,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     environment:
       name: pypi
-      url: https://pypi.org/p/pieeg-features
+      url: https://pypi.org/p/pifeat
     permissions:
       id-token: write  # Trusted Publishing (OIDC)
     steps:

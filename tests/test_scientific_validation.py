@@ -1,5 +1,5 @@
 """
-Scientific reference & Buffer-Protocol validation test suite for pieeg-features.
+Scientific reference & Buffer-Protocol validation test suite for pifeat.
 
 Tests numerical equivalence against:
 - scipy.signal.welch (exact periodic Hann window, constant detrend, one-sided PSD density)
@@ -19,7 +19,7 @@ import numpy as np
 import pytest
 import scipy.signal
 
-import pieeg_features as pf
+import pifeat as pf
 
 
 def _ref_hjorth(x: np.ndarray) -> tuple[float, float, float]:

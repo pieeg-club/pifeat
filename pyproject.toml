@@ -3,16 +3,16 @@ requires = ["maturin>=1.5,<2.0"]
 build-backend = "maturin"
 
 [project]
-name = "pieeg-features"
+name = "pifeat"
 version = "0.1.0"
-description = "Zero-dependency native EEG feature extraction engine (Welch PSD, band powers, Hjorth, entropy)"
+description = "Zero-dependency native EEG and biosignal feature extraction engine (Welch PSD, band powers, Hjorth, entropy)"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "AGPL-3.0-or-later"}
 authors = [
     {name = "PiEEG Community"},
 ]
-keywords = ["eeg", "bci", "neurofeedback", "pieeg", "dsp", "features", "welch", "hjorth", "entropy"]
+keywords = ["eeg", "bci", "neurofeedback", "biosignals", "dsp", "features", "welch", "hjorth", "entropy", "pifeat"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
@@ -31,11 +31,11 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pieeg-club/PiEEG-features"
-Repository = "https://github.com/pieeg-club/PiEEG-features"
-Issues = "https://github.com/pieeg-club/PiEEG-features/issues"
+Homepage = "https://github.com/pieeg-club/pifeat"
+Repository = "https://github.com/pieeg-club/pifeat"
+Issues = "https://github.com/pieeg-club/pifeat/issues"
 
 [tool.maturin]
 features = ["python"]
 python-source = "python"
-module-name = "pieeg_features.pieeg_features"
+module-name = "pifeat.pifeat"

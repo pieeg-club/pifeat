@@ -1,14 +1,14 @@
 """
-PiEEG Features — Zero-dependency, native Rust EEG feature extraction engine.
+pifeat — Zero-dependency, native Rust EEG and biosignal feature extraction engine.
 
-pip install pieeg-features   # zero Python runtime dependencies!
+pip install pifeat   # zero Python runtime dependencies!
 
 Accepts any object implementing the CPython Buffer Protocol (e.g. ``array.array('d')``,
 ``memoryview``, ``bytearray``, or ``numpy.ndarray``) in both ``channels_first``
 (``[channels, samples]``) and ``samples_first`` (``[samples, channels]``) layouts.
 """
 
-from .pieeg_features import (
+from .pifeat import (
     FLAG_FLATLINE,
     FLAG_NON_FINITE,
     FLAG_SEQ_GAP,

@@ -1,5 +1,5 @@
 """
-Python API benchmark for pieeg-features:
+Python API benchmark for pifeat:
 1. Separates zero-allocation `extract_into` (pure Rust + Py_buffer) from `extract` (returns PyFeatureFrame)
    and `to_dict()` (constructs Python dict of lists).
 2. Compares against the reference NumPy + SciPy implementation of the exact same 22 features.
@@ -17,7 +17,7 @@ import tracemalloc
 import numpy as np
 import scipy.signal
 
-import pieeg_features as pf
+import pifeat as pf
 
 
 def _scipy_numpy_extract_all_22(data_cs: np.ndarray, fs: float, nperseg: int, noverlap: int) -> np.ndarray:

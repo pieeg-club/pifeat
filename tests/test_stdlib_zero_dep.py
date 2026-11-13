@@ -1,5 +1,5 @@
 """
-Zero-dependency pure-stdlib validation suite for pieeg-features.
+Zero-dependency pure-stdlib validation suite for pifeat.
 
 Designed to run in bare Python environments (e.g., Raspberry Pi / arm32v7 Docker
 containers) WITHOUT numpy, scipy, or pytest installed, while also being discoverable
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import array
 import math
-import pieeg_features as pf
+import pifeat as pf
 
 
 def test_stdlib_feature_extractor_and_buffer_protocol() -> None:
