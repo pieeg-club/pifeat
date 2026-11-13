@@ -1,5 +1,8 @@
 # pifeat
 
+<img width="auto" height="400" alt="image" src="https://github.com/user-attachments/assets/da4a95cf-b85b-4382-a949-c1733430cd2f" />
+
+
 Standalone, zero-dependency EEG and biosignal feature extraction engine written in Rust and exposed to Python through PyO3.
 
 Designed for BCI, neurofeedback, machine learning, and biosignal research on resource-constrained edge hardware (Raspberry Pi 4 and Pi 5, ARMv7 and AArch64) as well as desktop/server platforms. Works with any EEG or biosignal acquisition source (OpenBCI, BrainFlow, LSL, MNE, PiEEG, or raw ADC streams).
