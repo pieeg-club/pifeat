@@ -37,7 +37,7 @@ Building real-time Brain-Computer Interfaces (BCI), neurofeedback loops, or edge
 - **100x–173x Faster than SciPy + NumPy**: Extracts all 22 time, frequency (Welch PSD), and nonlinear features across 16 channels (500 samples @ 250 Hz) in **~146 µs** with the GIL released.
 - **Zero Steady-State Allocations**: Both the Rust core and `extractor.extract_into(...)` perform **0 heap allocations** on the real-time hot path—eliminating GC pauses and latency spikes.
 - **Drop-In Scientific Equivalence**: Matches `scipy.signal.welch` (`window='hann'`, `detrend='constant'`, `scaling='density'`) to **$< 10^{-12}$ relative error**, with compensated two-pass variance to survive large uncalibrated ADC DC offsets ($10^5\text{--}10^6\ \mu\text{V}$).
-- **Hardware-Agnostic**: Works with **OpenBCI, BrainFlow, LSL (Lab Streaming Layer), MNE, PiEEG**, or any raw ADC/SPI stream.
+- **Hardware-Agnostic**: Works with **PiEEG, BrainFlow, LSL (Lab Streaming Layer), MNE**, or any raw ADC/SPI stream.
 
 ---
 
