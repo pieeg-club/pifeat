@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-tests:
+    name: Rust Unit & Zero-Alloc Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run pure-Rust unit tests
+        run: cargo test --no-default-features --lib
+      - name: Run zero-allocation & latency verification
+        run: cargo test --no-default-features --release --test bench_native -- --nocapture
+
+  python-scientific-tests:
+    name: Scientific Validation (${{ matrix.os }} / ${{ matrix.arch_label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch_label: x86_64
+          - os: ubuntu-24.04-arm
+            arch_label: aarch64-rpi4-rpi5
+          - os: macos-14
+            arch_label: macos-arm64
+          - os: windows-latest
+            arch_label: windows-x64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install maturin & scientific reference dependencies (pre-built wheels)
+        run: |
+          python -m pip install --upgrade pip
+          pip install --only-binary=:all: maturin numpy scipy pytest
+      - name: Build & install pieeg-features extension
+        run: maturin develop --release
+      - name: Run zero-dependency stdlib suite
+        run: python tests/test_stdlib_zero_dep.py
+      - name: Run full scientific reference suite (vs SciPy & NumPy)
+        run: pytest -v

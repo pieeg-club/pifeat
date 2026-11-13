@@ -4,5 +4,8 @@
 __pycache__/
 .pytest_cache/
 *.pyd
+*.pdb
 *.so
 *.dylib
+.venv/
+venv/
