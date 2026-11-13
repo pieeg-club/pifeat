@@ -12,7 +12,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/pifeat.svg)](https://pypi.org/project/pifeat/)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-zero-brightgreen.svg)](#why-pifeat)
 [![Powered by Rust](https://img.shields.io/badge/engine-Rust%20%2B%20PyO3-orange.svg)](https://github.com/pieeg-club/pifeat)
-[![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20Raspberry%20Pi-informational.svg)](#release-and-wheel-distribution)
+[![Platforms](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20Raspberry%20Pi-informational.svg)](#release-and-wheel-distribution)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPLv3%2B-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 ```bash
@@ -286,7 +286,6 @@ python benches/bench_python_vs_native.py
 `.github/workflows/release.yml` builds precompiled wheels via `PyO3/maturin-action@v1` for:
 
 - **Linux**: `x86_64`, `aarch64` (Raspberry Pi 4/5 64-bit), `armv7` (Raspberry Pi OS 32-bit)
-- **macOS**: `x86_64`, `aarch64`
 - **Windows**: `x64`
 - **Python**: CPython 3.10, 3.11, 3.12, 3.13 + source distribution (`sdist`)
 
